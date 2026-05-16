@@ -80,10 +80,16 @@ export async function fetchLectures(courseId) {
     let lectures = await Lecture.find(filter).populate("course", "title")
         .sort({ createdAt: 1 })
     return Promise.all(lectures.map(async (lec) => {
-        const transcripts = await fetchTranscript(lec.videoUrl);
-        const transcript = transcripts.reduce((prev, current) => ({ text: prev.text + ' ' + current.text }));
-        // const summary = await summarize_v2(transcript.text)
-        return { ...lec.toObject(), transcript }
+        try {
+
+            const transcripts = await fetchTranscript(lec.videoUrl);
+            const transcript = transcripts.reduce((prev, current) => ({ text: prev.text + ' ' + current.text }));
+            // const summary = await summarize_v2(transcript.text)
+            return { ...lec.toObject(), transcript }
+        } catch (ex) {
+            console.log(ex);
+            return { ...lec.toObject(), transcript: "" }
+        }
     }))
 }
 
@@ -107,7 +113,7 @@ export async function summarizeLecture(id) {
     const transcript = transcripts.reduce((prev, current) => ({ text: prev.text + ' ' + current.text, duration: prev.duration + current.duration }));
     console.log('Transcript object:', transcript);
     console.log('Transcript text:', transcript.text, typeof transcript.text);
-    return summarize_v3(transcript.text)
+    return summarize_v3(transcript.text ?? lecture.title + "\n" + lecture.description)
 }
 
 export async function fetchLectureById(id) {
