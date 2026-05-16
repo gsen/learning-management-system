@@ -2,8 +2,8 @@ import { authenticateUser, createUser } from "../services/auth-service.mjs";
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: false, // true in case of https,
-    maxAge: 60 * 60 * 1000,
+    secure: process.env.SECURE, // true in case of https,
+    maxAge: 60 * 60 * 24 * 1000,
     sameSite: "lax"
 }
 
