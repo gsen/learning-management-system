@@ -108,12 +108,19 @@ export async function summary_ollama(content) {
 
 export async function summarizeLecture(id) {
     const lecture = await Lecture.findById(id);
-    const transcripts = await fetchTranscript(lecture.videoUrl);
-    console.log('Transcripts:', transcripts);
-    const transcript = transcripts.reduce((prev, current) => ({ text: prev.text + ' ' + current.text, duration: prev.duration + current.duration }));
-    console.log('Transcript object:', transcript);
-    console.log('Transcript text:', transcript.text, typeof transcript.text);
-    return summarize_v3(transcript.text ?? lecture.title + "\n" + lecture.description)
+    try {
+
+        const transcripts = await fetchTranscript(lecture.videoUrl);
+        console.log('Transcripts:', transcripts);
+        const transcript = transcripts.reduce((prev, current) => ({ text: prev.text + ' ' + current.text, duration: prev.duration + current.duration }));
+        console.log('Transcript object:', transcript);
+        console.log('Transcript text:', transcript.text, typeof transcript.text);
+        return summarize_v3(transcript.text ?? lecture.title + "\n" + lecture.description)
+    } catch (ex) {
+        console.log(ex);
+        return summarize_v3(lecture.title + "\n" + lecture.description)
+
+    }
 }
 
 export async function fetchLectureById(id) {
